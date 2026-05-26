@@ -279,6 +279,7 @@ function custom_gold_karat_selector() {
         </tbody>
     </table>
 </div>
+
     </div>
 
     <script>
@@ -710,6 +711,23 @@ function custom_product_meta_message() {
     </p>';
 }
 
+// Custom text for specific WooCommerce category
+
+add_action('woocommerce_before_add_to_cart_button', 'custom_category_text_message', 25);
+
+function custom_category_text_message() {
+
+    global $product;
+
+    // Category slug
+    if ( has_term('rings', 'product_cat', $product->get_id()) ) {
+
+        echo '<div class="custom-category-message">
+                The displayed price is for Ring Size 7. Pricing for other sizes may vary based on the final metal weight.
+              </div>';
+    }
+
+}
 
 
 @include_once dirname(__FILE__) . '/more-functions.php';
