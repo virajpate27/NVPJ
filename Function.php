@@ -33,7 +33,7 @@ add_action( 'wp_enqueue_scripts', 'chld_thm_cfg_parent_css', 10 );
 
 // function add_pan_card_checkout_field($fields) {
 //     $fields['billing']['billing_pan_card'] = array(
-//         'label'       => __('PAN Card Number', 'woocommerce'),
+//         'label'       => __('PAN Card Number is required for orders above ₹2,00,000', 'woocommerce'),
 //         'placeholder' => _x('ABCDE1234F', 'placeholder', 'woocommerce'),
 //         'required'    => true,
 //         'class'       => array('form-row-wide'),
@@ -75,7 +75,7 @@ add_filter('woocommerce_checkout_fields', 'add_pan_card_checkout_field');
 
 function add_pan_card_checkout_field($fields) {
     $fields['billing']['billing_pan_card'] = array(
-        'label'       => __('PAN Card Number', 'woocommerce'),
+        'label'       => __('PAN Card Number is required for orders above ₹2,00,000', 'woocommerce'),
         'placeholder' => _x('ABCDE1234F', 'placeholder', 'woocommerce'),
         'required'    => false, // Not required by default
         'class'       => array('form-row-wide'),
@@ -227,10 +227,10 @@ function custom_gold_karat_selector() {
     </style>
     
     <div style="margin-bottom:20px;">
-          <label style="margin-right:45px;">Purity</label>
-        <label style="margin-left:20px;"><input type="radio" name="karat" value="9k"> 9Kt</label>
-        <label style="margin-left:10px;"><input type="radio" name="karat" value="14k"> 14Kt</label>
-        <label style="margin-left:10px;"><input type="radio" name="karat" value="18k" checked> 18Kt</label>
+        <label style="margin-right:45px;">Purity</label>
+        <label class="9kc hdd" style="margin-left:20px;"><input type="radio" name="karat" value="9k"> 9Kt</label>
+        <label class="14kc hdd" style="margin-left:10px;"><input type="radio" name="karat" value="14k"> 14Kt</label>
+        <label class="18kc" style="margin-left:10px;"><input type="radio" name="karat" value="18k" checked> 18Kt</label>
         <input type="hidden" id="selected_karat" name="selected_karat" value="18k">
         <input type="hidden" id="diamond_price_hidden" value="' . esc_attr($diamond_price) . '">
         <input type="hidden" id="color_stone_price_hidden" value="' . esc_attr($color_stone_price) . '"> <!-- NEW -->
@@ -729,5 +729,21 @@ function custom_category_text_message() {
 
 }
 
+// Custom text for specific Specific products
+add_action('woocommerce_product_meta_end', 'custom_text_for_specific_products');
+
+function custom_text_for_specific_products() {
+
+    global $product;
+
+    $product_ids = array(18184, 18191, 18101); // Replace with your product IDs
+
+    if ( in_array($product->get_id(), $product_ids) ) {
+
+        echo '<div class="custom-product-message">
+                Please contact us at +91 91361 52476
+              </div>';
+    }
+}
 
 @include_once dirname(__FILE__) . '/more-functions.php';
