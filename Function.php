@@ -229,8 +229,8 @@ function custom_gold_karat_selector() {
     <div style="margin-bottom:20px;">
         <label style="margin-right:45px;">Purity</label>
         <label class="9kc hdd" style="margin-left:20px;"><input type="radio" name="karat" value="9k"> 9Kt</label>
-        <label class="14kc hdd" style="margin-left:10px;"><input type="radio" name="karat" value="14k"> 14Kt</label>
-        <label class="18kc" style="margin-left:10px;"><input type="radio" name="karat" value="18k" checked> 18Kt</label>
+        <label class="14kc hdd" style="margin-left:10px;"><input type="radio" name="karat" value="14k" checked> 14Kt</label>
+        <label class="18kc" style="margin-left:10px;"><input type="radio" name="karat" value="18k" > 18Kt</label>
         <input type="hidden" id="selected_karat" name="selected_karat" value="18k">
         <input type="hidden" id="diamond_price_hidden" value="' . esc_attr($diamond_price) . '">
         <input type="hidden" id="color_stone_price_hidden" value="' . esc_attr($color_stone_price) . '"> <!-- NEW -->
@@ -316,7 +316,7 @@ function custom_gold_karat_selector() {
         const total = base + making + diamond + colorStone + gst; // INCLUDE COLOR STONE
 
         document.getElementById("karat-label").innerText = karat.toUpperCase();
-        document.getElementById("weight").innerText = weight;
+        document.getElementById("weight").innerText = parseFloat(weight).toFixed(2);
         document.getElementById("base").innerText = formatINR(base);
         
         // Diamond row
@@ -348,7 +348,7 @@ function custom_gold_karat_selector() {
     }
 
         // Default selection
-        updatePriceBreakup("18k");
+        updatePriceBreakup("14k");
 
         // Change on radio
         document.querySelectorAll("input[name=karat]").forEach(radio => {
@@ -744,6 +744,96 @@ function custom_text_for_specific_products() {
                 Please contact us at +91 91361 52476
               </div>';
     }
+}
+
+
+
+
+/**
+ * Add Aadhaar Number Field to Checkout
+ */
+add_filter( 'woocommerce_checkout_fields', 'custom_add_aadhaar_checkout_field' );
+
+function custom_add_aadhaar_checkout_field( $fields ) {
+
+    $fields['billing']['billing_aadhaar_number'] = array(
+        'type'        => 'text',
+        'label'       => __('Aadhaar Number', 'woocommerce'),
+        'placeholder' => __('Enter Aadhaar Number', 'woocommerce'),
+        'required'    => false, // Change to true if mandatory
+        'class'       => array('form-row-wide'),
+        'priority'    => 120,
+    );
+
+    return $fields;
+}
+
+/**
+ * Validate Aadhaar Number
+ */
+add_action( 'woocommerce_checkout_process', 'custom_validate_aadhaar_field' );
+
+function custom_validate_aadhaar_field() {
+
+    if ( ! empty($_POST['billing_aadhaar_number']) ) {
+
+        $aadhaar = preg_replace('/\s+/', '', $_POST['billing_aadhaar_number']);
+
+        if ( ! preg_match('/^[0-9]{12}$/', $aadhaar) ) {
+            wc_add_notice(
+                __('Please enter a valid 12-digit Aadhaar Number.'),
+                'error'
+            );
+        }
+    }
+}
+
+/**
+ * Save Aadhaar Number
+ */
+add_action( 'woocommerce_checkout_create_order', 'custom_save_aadhaar_field', 10, 2 );
+
+function custom_save_aadhaar_field( $order, $data ) {
+
+    if ( ! empty( $_POST['billing_aadhaar_number'] ) ) {
+        $order->update_meta_data(
+            '_billing_aadhaar_number',
+            sanitize_text_field( $_POST['billing_aadhaar_number'] )
+        );
+    }
+}
+
+/**
+ * Show in Admin Order Page
+ */
+add_action( 'woocommerce_admin_order_data_after_billing_address', 'custom_show_aadhaar_admin_order' );
+
+function custom_show_aadhaar_admin_order( $order ) {
+
+    $aadhaar = $order->get_meta('_billing_aadhaar_number');
+
+    if ( $aadhaar ) {
+        echo '<p><strong>Aadhaar Number:</strong> ' . esc_html($aadhaar) . '</p>';
+    }
+}
+
+/**
+ * Show in Emails
+ */
+add_filter( 'woocommerce_email_order_meta_fields', 'custom_aadhaar_email_field', 10, 3 );
+
+function custom_aadhaar_email_field( $fields, $sent_to_admin, $order ) {
+
+    $aadhaar = $order->get_meta('_billing_aadhaar_number');
+
+    if ( $aadhaar ) {
+        $fields['aadhaar_number'] = array(
+            'label' => __('Aadhaar Number'),
+            'value' => $aadhaar,
+        );
+    }
+
+    return $fields;
 }
 
 @include_once dirname(__FILE__) . '/more-functions.php';
