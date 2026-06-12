@@ -204,6 +204,12 @@ function custom_gold_karat_selector() {
     $diamond_price = floatval(get_post_meta($post->ID, 'diamond_price', true));
     $color_stone_price = floatval(get_post_meta($post->ID, 'color_stone_price', true)); // NEW
     $gst_rate = 0.03;
+	
+	$default_karat = '14k';
+
+if (has_term('exclusive-natural-diamond-designs', 'product_cat', $post->ID)) {
+    $default_karat = '18k';
+}
 
     echo '
     <style>
@@ -228,10 +234,10 @@ function custom_gold_karat_selector() {
     
     <div style="margin-bottom:20px;">
         <label style="margin-right:45px;">Purity</label>
-        <label class="9kc hdd" style="margin-left:20px;"><input type="radio" name="karat" value="9k"> 9Kt</label>
-        <label class="14kc hdd" style="margin-left:10px;"><input type="radio" name="karat" value="14k" checked> 14Kt</label>
-        <label class="18kc" style="margin-left:10px;"><input type="radio" name="karat" value="18k" > 18Kt</label>
-        <input type="hidden" id="selected_karat" name="selected_karat" value="18k">
+        <label class="9kc hdd" style="margin-left:20px;"><input type="radio" name="karat" value="9k" ' . checked($default_karat, '9k', false) . '> 9Kt</label>
+        <label class="14kc hdd" style="margin-left:10px;"><input type="radio" name="karat" value="14k" ' . checked($default_karat, '14k', false) . '> 14Kt</label>
+        <label class="18kc" style="margin-left:10px;"><input type="radio" name="karat" value="18k" ' . checked($default_karat, '18k', false) . '> 18Kt</label>
+        <input type="hidden" id="selected_karat" name="selected_karat" value="' . esc_attr($default_karat) . '">
         <input type="hidden" id="diamond_price_hidden" value="' . esc_attr($diamond_price) . '">
         <input type="hidden" id="color_stone_price_hidden" value="' . esc_attr($color_stone_price) . '"> <!-- NEW -->
     </div>
@@ -348,7 +354,7 @@ function custom_gold_karat_selector() {
     }
 
         // Default selection
-        updatePriceBreakup("14k");
+        updatePriceBreakup("' . $default_karat . '");
 
         // Change on radio
         document.querySelectorAll("input[name=karat]").forEach(radio => {
